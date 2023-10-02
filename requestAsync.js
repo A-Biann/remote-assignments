@@ -24,6 +24,15 @@ function requestCallback(url, callback) {
     });
 }
 
+function requestCallbackByPromise(url) {
+    return new Promise((resolve, reject) => {
+        requestCallback(url, (result) => {
+            console.log(result);
+            resolve();
+        });
+    });
+}
+
 // Promise
 function requestPromise(url) {
     const startTime = new Date().getTime();
@@ -60,10 +69,13 @@ async function requestAsyncAwait(url) {
 
 const totalStartTime = new Date().getTime();
 
-requestCallback(url, console.log);
-requestPromise(url).then(console.log);
-requestAsyncAwait(url).then(() => {
-    // calculate total execution time
+// Wrap all your requests in promises and pass them to Promise.all
+Promise.all([
+    requestCallbackByPromise(url),
+    requestPromise(url).then(console.log),
+    requestAsyncAwait(url)  // This function is already async, so it returns a promise
+]).then(() => {
+    // All requests are done
     const totalEndTime = new Date().getTime();
     const totalExecutionTime = totalEndTime - totalStartTime;
     console.log(`\nTotal Execution Time: ${totalExecutionTime} ms`);
