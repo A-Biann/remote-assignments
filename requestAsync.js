@@ -52,13 +52,19 @@ async function requestAsyncAwait(url) {
     const startTime = new Date().getTime();
     try {
         const response = await requestPromise(url);
-        console.log(response);
+        console.log('Asyn/' + response);
     } catch (error) {
         console.error(error);
     }
 }
 
-// Example usage
+const totalStartTime = new Date().getTime();
+
 requestCallback(url, console.log);
 requestPromise(url).then(console.log);
-requestAsyncAwait(url);
+requestAsyncAwait(url).then(() => {
+    // calculate total execution time
+    const totalEndTime = new Date().getTime();
+    const totalExecutionTime = totalEndTime - totalStartTime;
+    console.log(`\nTotal Execution Time: ${totalExecutionTime} ms`);
+});
