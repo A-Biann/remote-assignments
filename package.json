@@ -4,7 +4,10 @@
   "description": "## Description ## Environment requirements ## How to use",
   "main": "app.js",
   "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "mysql2": "^3.6.1",
     "sync-request": "^6.1.0"
   },
   "devDependencies": {},
