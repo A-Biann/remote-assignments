@@ -51,7 +51,7 @@ app.post('/users', (req, res) => {
                 return res.status(409).json({ error: 'Error Message: Email already exists' });
                 }
                 console.log(err);
-                return res.status(400).json({ error: 'Error Message: Server error when inserting' });
+                return res.status(500).json({ error: 'Error Message: Server error when inserting' });
             }
   
             const userId = results.insertId;
@@ -72,18 +72,22 @@ app.post('/users', (req, res) => {
         });
     } catch (error) {
       console.error('Error:', error.message);
-      res.status(400).json({ error: 'Error Message: Server error' });
+      res.status(500).json({ error: 'Error Message: Server error' });
     }
 });
 
 app.get('/users', (req, res) => {
     const userId = req.query.id;
 
+    if (!userId) {
+        return res.status(400).json({ error: 'Error Message: User ID is required' });
+    }
+    
     const selectQuery = `SELECT * FROM user WHERE id = ?`;
     connection.query(selectQuery, [userId], (err, results) => {
         if (err) {
             console.error('Error:', err.message);
-            return res.status(400).json({ error: 'Error Message: Server error' });
+            return res.status(500).json({ error: 'Error Message: Server error' });
         }
 
         if (results.length === 0) {
