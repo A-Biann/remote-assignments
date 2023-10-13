@@ -1,39 +1,28 @@
 require('dotenv').config();
 
 const express = require('express');
-const mysql = require('mysql2');
+const path = require('path');
 const bodyParser = require('body-parser');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const port = 3000;
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
+const connection = require('./db');
 
-// set connection
-const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-});
-
-connection.connect(err => {
-    if (err) {
-        console.error('connection error', err);
-    } else {
-        console.log('connection success');
-    }
-  });
+// Use the user routes
+app.use('/users', userRoutes);
 
 app.get('/', (req, res) => {
-    res.send('This is root page');
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
 
 app.get('/healthcheck', (req, res) => {
     res.send('This is health check page');
 });
 
-app.post('/users', (req, res) => {
+app.post('/try/users', (req, res) => {
     try {
         const { name, email, password } = req.body;
   
@@ -76,64 +65,8 @@ app.post('/users', (req, res) => {
     }
 });
 
-app.get('/users', (req, res) => {
-    const userId = req.query.id;
-
-    if (!userId) {
-        return res.status(400).json({ error: 'Error Message: User ID is required' });
-    }
-    
-    const selectQuery = `SELECT * FROM user WHERE id = ?`;
-    connection.query(selectQuery, [userId], (err, results) => {
-        if (err) {
-            console.error('Error:', err.message);
-            return res.status(500).json({ error: 'Error Message: Server error' });
-        }
-
-        if (results.length === 0) {
-            return res.status(403).json({ error: 'Error Message: User does not exist' });
-        }
-
-        const user = results[0];
-        const userObject = {
-            id: user.id,
-            name: user.name,
-            email: user.email
-        };
-
-        const response = {
-            data: {
-                user: userObject, 
-                'request-date': new Date().toUTCString() 
-                }
-        };
-
-        res.status(200).json(response);
-    });
-});
-
-  
 app.listen(port, () => {
-  console.log(`It is running on  ${port}`);
+    console.log(`It is running on ${port}`);
 });
 
-function validateUserData(name, email, password) {
-    const nameRegex = /^[a-zA-Z0-9]+$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=(?:[^A-Z]*[A-Z])?)(?=(?:[^a-z]*[a-z])?)(?=(?:\D*\d){1,})(?=[\s\S]*[~`!@#$%^&*()_+\-={[}\]|:;"'<,>.?/])[\s\S]*$/;
-  
-    if (!name.match(nameRegex)) {
-        return false;
-    }
-  
-    if (!email.match(emailRegex)) {
-        return false;
-    }
-  
-    if (!password.match(passwordRegex)) {
-        return false;
-    }
-  
-    return true;
-}
-  
+
