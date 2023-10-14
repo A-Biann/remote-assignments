@@ -20,13 +20,13 @@ app.use((req, res, next) => {
   });
 
 // Use the user routes
-app.use('/users', userRoutes);
+app.use('/api/users', userRoutes);
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.send('This is root page');
 });
 
-app.get('/healthcheck', (req, res) => {
+app.get('/api/healthcheck', (req, res) => {
     res.send('This is health check page');
 });
 
